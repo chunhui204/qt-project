@@ -27,6 +27,8 @@ public:
 	Tensor slice(int start_row, int end_row, int start_col, int end_col) const;
 	//non-sense
 	Tensor concatenate(const vector<Tensor> & vec, int axis) const;
+	//mean
+	Tensor mean(int axis) const;
 private:
     double * buffer;
     int row;

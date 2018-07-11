@@ -183,3 +183,36 @@ void print(const Tensor & obj)
         cout<<endl;
     }
 }
+/*
+求均值，返回Tensor
+axis=0， 行方向,是对列向量平均得到行向量
+axis=1， 列方向，对每个行向量平均得到列向量
+*/
+Tensor Tensor::mean(int axis) const
+{
+	double sum = 0;
+	if (axis == 0)
+	{
+		Tensor obj(1, this->col);
+		
+		for (int i = 0; i < this->col; i++)
+		{
+			sum = 0;
+			for (int j = 0; j < this->row; j++)
+				sum += (*this)(j, i);
+			obj(0, i) = sum / (this->row);
+		}
+		return obj;
+	}else{
+		Tensor obj(row, 1);
+
+		for (int i = 0; i < row; i++)
+		{
+			sum = 0;
+			for (int j = 0; j < col; j++)
+				sum += (*this)(i, j);
+			obj(i, 0) = sum / col;
+		}
+		return obj;
+	}
+}

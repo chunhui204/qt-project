@@ -66,7 +66,7 @@ Paramester & gausianTrain(const vector<Tensor> &trainData, double cdTthreshold, 
     for(int cn = 0;cn< classNum; cn++)  //处理第cn类数据
     {
 		Tensor data = trainData[cn];
-		Tensor pdfs(dataNum, featDim);
+		Tensor probp(dataNum, featDim);
         //根据已知数据找出每类数据的每个维度特征的均值和标准差
 		for (int dim = 0; dim < featDim; dim++)
 		{
@@ -80,15 +80,24 @@ Paramester & gausianTrain(const vector<Tensor> &trainData, double cdTthreshold, 
 			vector<int> indexs;//不在阈值范围内的sample索引
 			for (int num = 0; num < dataNum; num++)
 			{
-				pdfs(num, dim) = normpdf(mean, std, data(num, dim));//calc pdf
+				probp(num, dim) = normpdf(mean, std, data(num, dim));//calc pdf
 				double cdf = normcdf(mean, std, data(num, dim)); //calc cdf
 				if (cdf < cdTthreshold || cdf > 1 - cdTthreshold)
 					indexs.push_back(num);
 			}
 			//概率密度在概率分布两端的点被设置为0，最后以概率密度为基准 
 			for (vector<int>::iterator it = indexs.begin(); it != indexs.end(); it++)
-				pdfs(*it, dim) = 0;
-
+				probp(*it, dim) = 0;
+		}
+		//对每个特征组内的概率求均值，作为该组所有特征维度的概率值
+		Tensor probpt(dataNum, group.size());
+		int last_index = 0;
+		for (int g = 0; g < group.size(); g++)
+		{
+			last_index = group[g];
+			Tensor temp = probp.slice(0, -1, last_index, group[g]).mean(1);
+			for (int num = 0; num < dataNum; num++)
+				probpt(num, g) = temp(num, 0);
 		}
     }
 
