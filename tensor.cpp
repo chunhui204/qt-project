@@ -12,7 +12,7 @@ Tensor::Tensor(const Tensor & obj)
 	row = obj.rows();
 	col = obj.cols();
 
-	buffer = new float[this->row * this->col];
+	buffer = new double[this->row * this->col];
 
 	for (int i = 0; i < row; i++)
 	for (int j = 0; j < col; j++)
@@ -32,13 +32,13 @@ Tensor::Tensor(int rows)
 {
 	this->row = rows;
 	this->col = 1;
-	buffer = new float[this->row * this->col]();
+	buffer = new double[this->row * this->col]();
 }
 Tensor::Tensor(int rows, int cols)
 {
     this->row = rows;
     this->col = cols;
-    buffer = new float[this->row * this->col]();
+    buffer = new double[this->row * this->col]();
 }
 
 int Tensor::rows() const
@@ -49,7 +49,7 @@ int Tensor::cols() const
 {
     return col;
 }
-float & Tensor::operator()(int i, int j) const
+double & Tensor::operator()(int i, int j) const
 {
     return buffer[i*col + j];
 }
@@ -64,7 +64,7 @@ Tensor & Tensor::operator = (const Tensor& obj)
 
         if(this != NULL)
             delete [] buffer;
-        buffer = new float[this->row * this->col];
+        buffer = new double[this->row * this->col];
 
         for(int i=0;i<row;i++)
             for(int j=0;j<col;j++)

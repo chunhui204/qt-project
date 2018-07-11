@@ -1,5 +1,6 @@
 #include "algorithm.h"
 #include <math.h>
+#include <algorithm>
 
 Algorithm::Algorithm()
 {
@@ -9,15 +10,20 @@ Algorithm::~Algorithm()
 {
 
 }
+/*
+reference:
+[1] http://www.cplusplus.com/reference/cmath/erf/
+[2] https://zh.wikipedia.org/wiki/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83
+*/
 double normpdf(const double mean, const double std, const double x)
 {
-	const double RSQRT2PI = 0.39894228040143267793994605993438;//根下2pi分之一
+	
 	return exp(-(x - mean)*(x - mean)*0.5 / (std*std))*RSQRT2PI / std;
 }
 double normcdf(const double mean, const double std, const double x)
 {
-	double sum = 0;
-	normpdf(xt, mu, sigma)* x(i) / resolution
+	return 0.5 + 0.5*erf((x - mean)*RSQRTPI / std);
+
 }
 /*
 *正态分布拟合
@@ -60,14 +66,29 @@ Paramester & gausianTrain(const vector<Tensor> &trainData, double cdTthreshold, 
     for(int cn = 0;cn< classNum; cn++)  //处理第cn类数据
     {
 		Tensor data = trainData[cn];
+		Tensor pdfs(dataNum, featDim);
         //根据已知数据找出每类数据的每个维度特征的均值和标准差
 		for (int dim = 0; dim < featDim; dim++)
 		{
 			double mean = 0;
 			double std = 0;
+			
 			normfit(data.slice(0, -1, dim), mean, std);
 			(*(params.featureMean))(cn, dim) = mean;
 			(*(params.featureStd))(cn, dim) = std;
+			//通过训练数据找到pdf的门限阈值
+			vector<int> indexs;//不在阈值范围内的sample索引
+			for (int num = 0; num < dataNum; num++)
+			{
+				pdfs(num, dim) = normpdf(mean, std, data(num, dim));//calc pdf
+				double cdf = normcdf(mean, std, data(num, dim)); //calc cdf
+				if (cdf < cdTthreshold || cdf > 1 - cdTthreshold)
+					indexs.push_back(num);
+			}
+			//概率密度在概率分布两端的点被设置为0，最后以概率密度为基准 
+			for (vector<int>::iterator it = indexs.begin(); it != indexs.end(); it++)
+				pdfs(*it, dim) = 0;
+
 		}
     }
 
