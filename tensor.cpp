@@ -85,53 +85,53 @@ Tensor Tensor::slice(int start_row=0, int end_row=-1, int start_col=0, int end_c
 		(start_row > end_row && end_row != -1) || (start_col > end_col && end_col != -1) ||
 		start_row > this->row || start_col > this->col)
 	{
-		throw "参数不合法";
+		throw "illegal paramesters";
 	}
 	if (end_row == -1)	end_row = this->row;
 	if (end_col == -1)	end_col = this->col;
 
 	Tensor obj(end_row - start_row, end_col - start_col);
 
-	for (int m = 0,int i = start_row; i < end_row; i++, m++)
+	for (int m = 0, i = start_row; i < end_row; i++, m++)
 	{
-		for (int n=0, int j = start_col; j < end_col; j++, n++)
+		for (int n=0, j = start_col; j < end_col; j++, n++)
 		{
 			obj(m, n) = (*this)(i, j);
 		}
 	}
 	return obj;
 }
-Tensor Tensor::slice(int pos, int start_col, int end_col) const
+Tensor Tensor::slice_col(int pos, int start_col, int end_col) const
 {
 	if (pos<0 || start_col<0 || end_col<-1 ||
 		(start_col > end_col && end_col != -1) ||
 		pos >= this->row || start_col > this->col)
 	{
-		throw "参数不合法";
+		throw "illegal paramesters";
 	}
 	if (end_col == -1)	end_col = this->col;
 
 	Tensor obj(1, end_col - start_col);
 
-	for (int n = 0, int j = start_col; j < end_col; j++, n++)
+	for (int n = 0, j = start_col; j < end_col; j++, n++)
 	{
 		obj(0, n) = (*this)(pos, j);
 	}
 	return obj;
 }
-Tensor Tensor::slice(int start_row, int end_row, int pos) const
+Tensor Tensor::slice_row(int start_row, int end_row, int pos) const
 {
 	if (start_row<0 || pos<0 || end_row<-1 ||
 		(start_row > end_row && end_row != -1) ||
 		start_row > this->row || pos >= this->col)
 	{
-		throw "参数不合法";
+		throw "illegal paramesters";
 	}
 	if (end_row == -1)	end_row = this->row;
 
 	Tensor obj(end_row - start_row, 1);
 
-	for (int m = 0, int i = start_row; i < end_row; i++, m++)
+	for (int m = 0, i = start_row; i < end_row; i++, m++)
 	{
 		obj(m, 0) = (*this)(i, pos);
 	}
@@ -144,9 +144,9 @@ axis=1,：在列方向组合，要求行向量Tensor(1，n)
 */
 Tensor Tensor::concatenate(const vector<Tensor> & vec, int axis) const
 {
-	if (vec.size < 1 || (axis == 0 && vec[0].col != 1) || (axis == 1 && vec[0].row != 1))
+	if (vec.size() < 1 || (axis == 0 && vec[0].col != 1) || (axis == 1 && vec[0].row != 1))
 	{
-		throw "参数有误";
+		throw "illegal paramesters";
 	}
 	//还应该断言vector内tensor形状一致
 	if (axis == 0)
@@ -214,5 +214,22 @@ Tensor Tensor::mean(int axis) const
 			obj(i, 0) = sum / col;
 		}
 		return obj;
+	}
+}
+/*
+对一维向量求最大值以及位置，注意只能是一维矩阵，某个轴上的维度为1。
+val，pos均为外部变量。
+*/
+void Tensor::vector_max(double &val, int &pos) const
+{
+	val = 0;
+	for (int i = 0; i < row;i++)
+	for (int j = 0; j < col; j++)
+	{
+		if ((*this)(i, j) > val)
+		{
+			pos = i*col + j;
+			val = (*this)(i, j);
+		}
 	}
 }
