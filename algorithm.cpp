@@ -46,7 +46,18 @@ void normfit(const Tensor & data, double & miu, double & sigma)
 }
 /*
 *模型训练
-*data是3维向量，（sample_num,feature_dim, class_num）
+*根据已知数据找出每类数据的每个维度特征的均值和标准差
+*@input params
+	trainData : 训练数据，三个维度一次是样本数量、特征维度、类别维度
+	cdfThreshold: 设定样本cdf的阈值 令cdf小于cdfgate和大于1-cdfgate的点的pdf置零     例如取0.03
+	probThreshold： 设定总的概率的容错率  将会有probthreshold的正样本可能被分为负样本，设为0则有可能提高误检率 例如取0.01
+	group ： 向量，用来划定哪几维的特征是一个组合,如[5 3 7]表示从左到右的特征共有三组，维度依次为5维 3维
+			 7维，特征维度为5+3+7=15维
+*@output params:
+	一定要传入外部对象，非临时对象
+	featMean: 特征每个维度的均值 每行为一类数据，每列为特征的一个维度
+	featStd: 特征每个维度的标准差
+	gate: 概率（pdf）均值的门限阈值 行向量
 *
 */
 Paramester gausianTrain(const vector<Tensor> &trainData, double cdTthreshold, double probThreshold, vector<int> group)
